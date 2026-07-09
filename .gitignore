@@ -1,0 +1,24 @@
+# 编译产物
+*.o
+*.d
+*.crf
+*.axf
+*.hex
+*.bin
+*.lnp
+*.lst
+*.map
+*.dep
+*.iex
+
+# IDE
+Debug/
+Release/
+.vs/
+*.uvguix.*
+*.scvd
+JLinkLog.txt
+
+# 系统文件
+Thumbs.db
+.DS_Store
