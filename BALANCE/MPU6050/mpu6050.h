@@ -1,9 +1,5 @@
 #ifndef __MPU6050_H
 #define __MPU6050_H
-  /**************************************************************************
-作者：平衡小车之家
-我的淘宝小店：http://shop114407458.taobao.com/
-**************************************************************************/
 #include "sys.h"
 #define devAddr  0xD0
 
@@ -360,15 +356,15 @@ extern	short gyro[3], accel[3];
 extern int16_t Gx_offset,Gy_offset,Gz_offset;
 extern float Acc1G_Values; 
 extern float Pitch,Roll,Yaw; 
-//供外部调用的API
-void MPU6050_initialize(void); //初始化
-uint8_t MPU6050_testConnection(void); //检测MPU6050是否存在
-//读取ADC值
+//獠棵礎PI
+void MPU6050_initialize(void); //始
+uint8_t MPU6050_testConnection(void); //MPU6050欠
+//取ADC值
 void MPU6050_getMotion6(int16_t* ax, int16_t* ay, int16_t* az, int16_t* gx, int16_t* gy, int16_t* gz);
 void MPU6050_getlastMotion6(int16_t* ax, int16_t* ay, 
 		int16_t* az, int16_t* gx, int16_t* gy, int16_t* gz);
-uint8_t MPU6050_getDeviceID(void); //读取MPU6050的ID
-void MPU6050_InitGyro_Offset(void);//初始化陀螺仪偏置
+uint8_t MPU6050_getDeviceID(void); //取MPU6050ID
+void MPU6050_InitGyro_Offset(void);//始偏
 void DMP_Init(void);
 void Read_DMP(void);
 int Read_Temperature(void);
