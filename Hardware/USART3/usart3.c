@@ -1,75 +1,57 @@
-/***********************************************
-¹«Ë¾£ºÂÖÈ¤¿Æ¼¼£¨¶«Ý¸£©ÓÐÏÞ¹«Ë¾
-Æ·ÅÆ£ºWHEELTEC
-¹ÙÍø£ºwheeltec.net
-ÌÔ±¦µêÆÌ£ºshop114407458.taobao.com 
-ËÙÂôÍ¨: https://minibalance.aliexpress.com/store/4455017
-°æ±¾£º5.7
-ÐÞ¸ÄÊ±¼ä£º2021-04-29
-
-Brand: WHEELTEC
-Website: wheeltec.net
-Taobao shop: shop114407458.taobao.com 
-Aliexpress: https://minibalance.aliexpress.com/store/4455017
-Version:5.7
-Update£º2021-04-29
-
-All rights reserved
-***********************************************/
 
 #include "usart3.h"
 
-u8 Usart2_Receive_buf[1];          //´®¿Ú3½ÓÊÕÖÐ¶ÏÊý¾Ý´æ·ÅµÄ»º³åÇø
-u8 Usart2_Receive;                 //´Ó´®¿Ú3¶ÁÈ¡µÄÊý¾Ý
-u8 Usart3_Receive_buf[1];          //´®¿Ú3½ÓÊÕÖÐ¶ÏÊý¾Ý´æ·ÅµÄ»º³åÇø
-u8 Usart3_Receive;                 //´Ó´®¿Ú3¶ÁÈ¡µÄÊý¾Ý
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *UartHandle) //½ÓÊÕ»Øµ÷º¯Êý
+u8 Usart2_Receive_buf[1];          //3Ð¶Ý´ÅµÄ»
+u8 Usart2_Receive;                 //Ó´3È¡
+u8 Usart3_Receive_buf[1];          //3Ð¶Ý´ÅµÄ»
+u8 Usart3_Receive;                 //Ó´3È¡
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *UartHandle) //Õ»Øµ
 {
 	
 	if(UartHandle->Instance == USART3)
 	{
-    static	int uart_receive=0;//À¶ÑÀ½ÓÊÕÏà¹Ø±äÁ¿
+    static	int uart_receive=0;//Ø±
 		static u8 Flag_PID,i,j,Receive[50];
 		static float Data;
   	uart_receive=Usart3_Receive_buf[0]; 
 		Usart3_Receive=uart_receive;
-		if(uart_receive==0x59)  Flag_velocity=2;  //µÍËÙµ²£¨Ä¬ÈÏÖµ£©
-		if(uart_receive==0x58)  Flag_velocity=1;  //¸ßËÙµµ
+		if(uart_receive==0x59)  Flag_velocity=2;  //ÙµÄ¬Öµ
+		if(uart_receive==0x58)  Flag_velocity=1;  //Ùµ
 		
-	  if(uart_receive>10)  //Ä¬ÈÏÊ¹ÓÃ
+	  if(uart_receive>10)  //Ä¬Ê¹
     {			
-			if(uart_receive==0x5A)	    Flag_front=0,Flag_back=0,Flag_Left=0,Flag_Right=0;//É²³µ
+			if(uart_receive==0x5A)	    Flag_front=0,Flag_back=0,Flag_Left=0,Flag_Right=0;//É²
 			else if(uart_receive==0x41)	Flag_front=1,Flag_back=0,Flag_Left=0,Flag_Right=0;//Ç°
-			else if(uart_receive==0x45)	Flag_front=0,Flag_back=1,Flag_Left=0,Flag_Right=0;//ºó
+			else if(uart_receive==0x45)	Flag_front=0,Flag_back=1,Flag_Left=0,Flag_Right=0;//
 			else if(uart_receive==0x42||uart_receive==0x43||uart_receive==0x44)	
-																	Flag_front=0,Flag_back=0,Flag_Left=0,Flag_Right=1;  //ÓÒ
+																	Flag_front=0,Flag_back=0,Flag_Left=0,Flag_Right=1;  //
 			else if(uart_receive==0x46||uart_receive==0x47||uart_receive==0x48)	    
-																	Flag_front=0,Flag_back=0,Flag_Left=1,Flag_Right=0;  //×ó
-			else Flag_front=0,Flag_back=0,Flag_Left=0,Flag_Right=0;//É²³µ
+																	Flag_front=0,Flag_back=0,Flag_Left=1,Flag_Right=0;  //
+			else Flag_front=0,Flag_back=0,Flag_Left=0,Flag_Right=0;//É²
   	}
-		if(uart_receive<10)     //±¸ÓÃappÎª£ºMiniBalanceV1.0  ÒòÎªMiniBalanceV1.0µÄÒ£¿ØÖ¸ÁîÎªA~H ÆäHEX¶¼Ð¡ÓÚ10
+		if(uart_receive<10)     //appÎªMiniBalanceV1.0  ÎªMiniBalanceV1.0Ò£Ö¸ÎªA~H HEXÐ¡10
 		{			
-//			Flag_velocity=1;//ÇÐ»»ÖÁ¸ßËÙµµ
-			if(uart_receive==0x00)	Flag_front=0,Flag_back=0,Flag_Left=0,Flag_Right=0;//É²³µ
+//			Flag_velocity=1;//Ð»Ùµ
+			if(uart_receive==0x00)	Flag_front=0,Flag_back=0,Flag_Left=0,Flag_Right=0;//É²
 			else if(uart_receive==0x01)	Flag_front=1,Flag_back=0,Flag_Left=0,Flag_Right=0;//Ç°
-			else if(uart_receive==0x05)	Flag_front=0,Flag_back=1,Flag_Left=0,Flag_Right=0;//ºó
+			else if(uart_receive==0x05)	Flag_front=0,Flag_back=1,Flag_Left=0,Flag_Right=0;//
 			else if(uart_receive==0x02||uart_receive==0x03||uart_receive==0x04)	
-														Flag_front=0,Flag_back=0,Flag_Left=0,Flag_Right=1;  //×ó
-			else if(uart_receive==0x06||uart_receive==0x07||uart_receive==0x08)	    //ÓÒ
+														Flag_front=0,Flag_back=0,Flag_Left=0,Flag_Right=1;  //
+			else if(uart_receive==0x06||uart_receive==0x07||uart_receive==0x08)	    //
 														Flag_front=0,Flag_back=0,Flag_Left=1,Flag_Right=0;
-			else Flag_front=0,Flag_back=0,Flag_Left=0,Flag_Right=0;//É²³µ
+			else Flag_front=0,Flag_back=0,Flag_Left=0,Flag_Right=0;//É²
   	}	
 
 		
-		if(Usart3_Receive==0x7B) Flag_PID=1;   //APP²ÎÊýÖ¸ÁîÆðÊ¼Î»
-		if(Usart3_Receive==0x7D) Flag_PID=2;   //APP²ÎÊýÖ¸ÁîÍ£Ö¹Î»
+		if(Usart3_Receive==0x7B) Flag_PID=1;   //APPÖ¸Ê¼Î»
+		if(Usart3_Receive==0x7D) Flag_PID=2;   //APPÖ¸Í£Ö¹Î»
 
-		 if(Flag_PID==1)  //²É¼¯Êý¾Ý
+		 if(Flag_PID==1)  //É¼
 		 {
 				Receive[i]=Usart3_Receive;
 				i++;
 		 }
-		 if(Flag_PID==2)  //·ÖÎöÊý¾Ý
+		 if(Flag_PID==2)  //
 		 {
 			  if(Receive[3]==0x50) 				 PID_Send=1;
 			  else if(Receive[1]!=0x23) 
@@ -86,40 +68,40 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *UartHandle) //½ÓÊÕ»Øµ÷º¯Êý
 						case 0x33:  Velocity_Ki=Data;break;
 						case 0x34:  Turn_Kp=Data;break; 
 					  case 0x35:  Turn_Kd=Data;break; 
-						case 0x36:  break; //Ô¤Áô
-						case 0x37:  break; //Ô¤Áô
-						case 0x38:  break; //Ô¤Áô
+						case 0x36:  break; //Ô¤
+						case 0x37:  break; //Ô¤
+						case 0x38:  break; //Ô¤
 					}
 				}				 
 			    Flag_PID=0;
 					i=0;
 					j=0;
 					Data=0;
-					memset(Receive, 0, sizeof(u8)*50);//Êý×éÇåÁã
+					memset(Receive, 0, sizeof(u8)*50);//
 		 } 	
 		 
-		HAL_UART_Receive_IT(&huart3,Usart3_Receive_buf,sizeof(Usart3_Receive_buf));//´®¿Ú3»Øµ÷º¯ÊýÖ´ÐÐÍê±ÏÖ®ºó£¬ÐèÒªÔÙ´Î¿ªÆô½ÓÊÕÖÐ¶ÏµÈ´ýÏÂÒ»´Î½ÓÊÕÖÐ¶ÏµÄ·¢Éú
+		HAL_UART_Receive_IT(&huart3,Usart3_Receive_buf,sizeof(Usart3_Receive_buf));//3ØµÖ´Ö®ÒªÙ´Î¿Ð¶ÏµÈ´Ò»Î½Ð¶ÏµÄ·
 	}
 	else if(UartHandle->Instance == USART2)
 	{
 		static u8 state = 0;//×´Ì¬Î»	
-		static u8 crc_sum = 0;//Ð£ÑéºÍ
-		static u8 cnt = 0;//ÓÃÓÚÒ»Ö¡16¸öµãµÄ¼ÆÊý
+		static u8 crc_sum = 0;//Ð£
+		static u8 cnt = 0;//Ò»Ö¡16Ä¼
 		u8 temp_data;
 		temp_data=Usart2_Receive_buf[0]; 
 		switch(state)
 		{
 			case 0:
-				if(temp_data == HEADER_0)//Í·¹Ì¶¨
+				if(temp_data == HEADER_0)//Í·Ì¶
 				{
 					Pack_Data.header_0= temp_data;
 					state++;
-					//Ð£Ñé
+					//Ð£
 					crc_sum += temp_data;
 				} else state = 0,crc_sum = 0;
 				break;
 			case 1:
-				if(temp_data == HEADER_1)//Í·¹Ì¶¨
+				if(temp_data == HEADER_1)//Í·Ì¶
 				{
 					Pack_Data.header_1 = temp_data;
 					state++;
@@ -127,7 +109,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *UartHandle) //½ÓÊÕ»Øµ÷º¯Êý
 				} else state = 0,crc_sum = 0;
 				break;
 			case 2:
-				if(temp_data == Length_)//×Ö³¤¹Ì¶¨
+				if(temp_data == Length_)//Ö³Ì¶
 				{
 					Pack_Data.ver_len = temp_data;
 					state++;
@@ -135,22 +117,22 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *UartHandle) //½ÓÊÕ»Øµ÷º¯Êý
 				} else state = 0,crc_sum = 0;
 				break;
 			case 3:
-				Pack_Data.speed_h = temp_data;//ËÙ¶È¸ß°ËÎ»
+				Pack_Data.speed_h = temp_data;//Ù¶È¸ß°Î»
 				state++;
 				crc_sum += temp_data;			
 				break;
 			case 4:
-				Pack_Data.speed_l = temp_data;//ËÙ¶ÈµÍ°ËÎ»
+				Pack_Data.speed_l = temp_data;//Ù¶ÈµÍ°Î»
 				state++;
 				crc_sum += temp_data;
 				break;
 			case 5:
-				Pack_Data.start_angle_h = temp_data;//¿ªÊ¼½Ç¶È¸ß°ËÎ»
+				Pack_Data.start_angle_h = temp_data;//Ê¼Ç¶È¸ß°Î»
 				state++;
 				crc_sum += temp_data;
 				break;
 			case 6:
-				Pack_Data.start_angle_l = temp_data;//¿ªÊ¼½Ç¶ÈµÍ°ËÎ»
+				Pack_Data.start_angle_l = temp_data;//Ê¼Ç¶ÈµÍ°Î»
 				state++;
 				crc_sum += temp_data;
 				break;
@@ -159,7 +141,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *UartHandle) //½ÓÊÕ»Øµ÷º¯Êý
 			case 19:case 22:case 25:case 28:
 			case 31:case 34:case 37:case 40:
 			case 43:case 46:case 49:case 52:
-				Pack_Data.point[cnt].distance_h = temp_data;//16¸öµãµÄ¾àÀëÊý¾Ý£¬¸ß×Ö½Ú
+				Pack_Data.point[cnt].distance_h = temp_data;//16Ä¾Ý£Ö½
 				state++;
 				crc_sum += temp_data;
 				break;
@@ -168,7 +150,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *UartHandle) //½ÓÊÕ»Øµ÷º¯Êý
 			case 20:case 23:case 26:case 29:
 			case 32:case 35:case 38:case 41:
 			case 44:case 47:case 50:case 53:
-				Pack_Data.point[cnt].distance_l = temp_data;//16¸öµãµÄ¾àÀëÊý¾Ý£¬µÍ×Ö½Ú
+				Pack_Data.point[cnt].distance_l = temp_data;//16Ä¾Ý£Ö½
 				state++;
 				crc_sum += temp_data;
 				break;
@@ -177,39 +159,39 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *UartHandle) //½ÓÊÕ»Øµ÷º¯Êý
 			case 21:case 24:case 27:case 30:
 			case 33:case 36:case 39:case 42:
 			case 45:case 48:case 51:case 54:
-				Pack_Data.point[cnt].Strong = temp_data;//16¸öµãµÄÇ¿¶ÈÊý¾Ý
+				Pack_Data.point[cnt].Strong = temp_data;//16Ç¿
 				state++;
 				crc_sum += temp_data;
 				cnt++;
 				break;
 			
 			case 55:
-				Pack_Data.end_angle_h = temp_data;//½áÊø½Ç¶ÈµÄ¸ß°ËÎ»
+				Pack_Data.end_angle_h = temp_data;//Ç¶ÈµÄ¸ß°Î»
 				state++;
 				crc_sum += temp_data;			
 				break;
 			case 56:
-				Pack_Data.end_angle_l = temp_data;//½áÊø½Ç¶ÈµÄµÍ°ËÎ»
+				Pack_Data.end_angle_l = temp_data;//Ç¶ÈµÄµÍ°Î»
 				state++;
 				crc_sum += temp_data;
 				break;
 			case 57:
-				Pack_Data.crc = temp_data;//Ð£Ñé
+				Pack_Data.crc = temp_data;//Ð£
 				state = 0;
 				cnt = 0;
 				if(crc_sum == Pack_Data.crc)
 				{
-					data_process();//Êý¾Ý´¦Àí£¬Ð£ÑéÕýÈ·²»¶ÏË¢ÐÂ´æ´¢µÄÊý¾Ý
+					data_process();//Ý´Ð£È·Ë¢Â´æ´¢
 				}
 				else 
 				{
-					memset(&Pack_Data,0,sizeof(Pack_Data));//ÇåÁã
+					memset(&Pack_Data,0,sizeof(Pack_Data));//
 				}
-				crc_sum = 0;//Ð£ÑéºÍÇåÁã
+				crc_sum = 0;//Ð£
 				break;
 			default: break;
 	  }	
-     HAL_UART_Receive_IT(&huart2,Usart2_Receive_buf,sizeof(Usart2_Receive_buf));//¿ªÆô´®¿Ú2½ÓÊÕÖÐ¶Ï
+     HAL_UART_Receive_IT(&huart2,Usart2_Receive_buf,sizeof(Usart2_Receive_buf));//2Ð¶
 	}
 }
 

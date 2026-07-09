@@ -1,21 +1,3 @@
-/***********************************************
-¹«Ë¾£ºÂÖÈ¤¿Æ¼¼(¶«İ¸)ÓĞÏŞ¹«Ë¾
-Æ·ÅÆ£ºWHEELTEC
-¹ÙÍø£ºwheeltec.net
-ÌÔ±¦µêÆÌ£ºshop114407458.taobao.com 
-ËÙÂôÍ¨: https://minibalance.aliexpress.com/store/4455017
-°æ±¾£ºV1.0
-ĞŞ¸ÄÊ±¼ä£º2022-09-05
-
-Brand: WHEELTEC
-Website: wheeltec.net
-Taobao shop: shop114407458.taobao.com 
-Aliexpress: https://minibalance.aliexpress.com/store/4455017
-Version: V1.0
-Update£º2022-09-05
-
-All rights reserved
-***********************************************/
 
 #include "Lidar.h"
 #include <string.h>
@@ -25,30 +7,30 @@ All rights reserved
 
 float Follow_KP =10,Follow_KD =1,Follow_KI = 0.001;	
 
-PointDataProcessDef PointDataProcess[225] ;//¸üĞÂ225¸öÊı¾İ
+PointDataProcessDef PointDataProcess[225] ;//225
 LiDARFrameTypeDef Pack_Data;
-PointDataProcessDef Dataprocess[225];      //ÓÃÓÚĞ¡³µ±ÜÕÏ¡¢¸úËæ¡¢×ßÖ±Ïß¡¢ELEÀ×´ï±ÜÕÏµÄÀ×´ïÊı¾İ
+PointDataProcessDef Dataprocess[225];      //Ğ¡Ï¡æ¡¢Ö±ß¡ELE×´Ïµ×´
 
 
 /**************************************************************************
 Function: data_process
 Input   : none
 Output  : none
-º¯Êı¹¦ÄÜ£ºÊı¾İ´¦Àíº¯Êı
-Èë¿Ú²ÎÊı£ºÎŞ
-·µ»Ø  Öµ£ºÎŞ
+Ü£İ´
+Ú²
+  Öµ
 **************************************************************************/
-//Íê³ÉÒ»Ö¡½ÓÊÕºó½øĞĞ´¦Àí
-void data_process(void) //Êı¾İ´¦Àí
+//Ò»Ö¡ÕºĞ´
+void data_process(void) //İ´
 {
 	static u8 data_cnt = 0;
 	u8 i,m,n;
-	u32 distance_sum[8]={0};//2¸öµãµÄ¾àÀëºÍµÄÊı×é
+	u32 distance_sum[8]={0};//2Ä¾Íµ
 	LD_Successful_Receive_flag=1;
-	float start_angle = (((u16)Pack_Data.start_angle_h<<8)+Pack_Data.start_angle_l)/100.0;//¼ÆËã16¸öµãµÄ¿ªÊ¼½Ç¶È
-	float end_angle = (((u16)Pack_Data.end_angle_h<<8)+Pack_Data.end_angle_l)/100.0;//¼ÆËã16¸öµãµÄ½áÊø½Ç¶È
-	float area_angle[8]={0};//Ò»Ö¡Êı¾İµÄ8¸öÆ½¾ù½Ç¶È
-	if((start_angle>350)&&(end_angle<13))//ÒòÎªÒ»Ö¡Êı¾İÊÇ13¶È£¬±ÜÃâ350µ½10Õâ¶Î·¶Î§Ïà¼Ó£¬×îºóangle·´¶ø±ä³É180·¶Î§
+	float start_angle = (((u16)Pack_Data.start_angle_h<<8)+Pack_Data.start_angle_l)/100.0;//16Ä¿Ê¼Ç¶
+	float end_angle = (((u16)Pack_Data.end_angle_h<<8)+Pack_Data.end_angle_l)/100.0;//16Ä½Ç¶
+	float area_angle[8]={0};//Ò»Ö¡İµ8Æ½Ç¶
+	if((start_angle>350)&&(end_angle<13))//ÎªÒ»Ö¡13È£35010Î·Î§Ó£angle180Î§
 		end_angle +=360;
 	for(m=0;m<8;m++)
 	{
@@ -60,28 +42,28 @@ void data_process(void) //Êı¾İ´¦Àí
 		switch(i)
 		{
 			case 0:case 1:
-				distance_sum[0] +=((u16)Pack_Data.point[i].distance_h<<8)+Pack_Data.point[i].distance_l;//0~1µãµÄ¾àÀëºÍ
+				distance_sum[0] +=((u16)Pack_Data.point[i].distance_h<<8)+Pack_Data.point[i].distance_l;//0~1Ä¾
 			  break;
 			case 2:case 3:
-				distance_sum[1] +=((u16)Pack_Data.point[i].distance_h<<8)+Pack_Data.point[i].distance_l;//2~3µãµÄ¾àÀëºÍ
+				distance_sum[1] +=((u16)Pack_Data.point[i].distance_h<<8)+Pack_Data.point[i].distance_l;//2~3Ä¾
 			  break;
 			case 4:case 5:
-				distance_sum[2] +=((u16)Pack_Data.point[i].distance_h<<8)+Pack_Data.point[i].distance_l;//4~5µãµÄ¾àÀëºÍ
+				distance_sum[2] +=((u16)Pack_Data.point[i].distance_h<<8)+Pack_Data.point[i].distance_l;//4~5Ä¾
 			  break;
 			case 6:case 7:
-				distance_sum[3] +=((u16)Pack_Data.point[i].distance_h<<8)+Pack_Data.point[i].distance_l;//6~7µãµÄ¾àÀëºÍ
+				distance_sum[3] +=((u16)Pack_Data.point[i].distance_h<<8)+Pack_Data.point[i].distance_l;//6~7Ä¾
 			  break;
 			case 8:case 9:
-				distance_sum[4] +=((u16)Pack_Data.point[i].distance_h<<8)+Pack_Data.point[i].distance_l;//8~9µãµÄ¾àÀëºÍ
+				distance_sum[4] +=((u16)Pack_Data.point[i].distance_h<<8)+Pack_Data.point[i].distance_l;//8~9Ä¾
 			  break;
 			case 10:case 11:
-				distance_sum[5] +=((u16)Pack_Data.point[i].distance_h<<8)+Pack_Data.point[i].distance_l;//10~11µãµÄ¾àÀëºÍ
+				distance_sum[5] +=((u16)Pack_Data.point[i].distance_h<<8)+Pack_Data.point[i].distance_l;//10~11Ä¾
 			  break;
 			case 12:case 13:
-				distance_sum[6] +=((u16)Pack_Data.point[i].distance_h<<8)+Pack_Data.point[i].distance_l;//12~13µãµÄ¾àÀëºÍ
+				distance_sum[6] +=((u16)Pack_Data.point[i].distance_h<<8)+Pack_Data.point[i].distance_l;//12~13Ä¾
 			  break;
 			case 14:case 15:
-				distance_sum[7] +=((u16)Pack_Data.point[i].distance_h<<8)+Pack_Data.point[i].distance_l;//14~15µãµÄ¾àÀëºÍ
+				distance_sum[7] +=((u16)Pack_Data.point[i].distance_h<<8)+Pack_Data.point[i].distance_l;//14~15Ä¾
 			  break;
 			default:break;
 								
@@ -110,17 +92,17 @@ void data_process(void) //Êı¾İ´¦Àí
 Function: Distance_Adjust_PID
 Input   : Current_Distance;Target_Distance
 Output  : OutPut
-º¯Êı¹¦ÄÜ£ºÀ×´ï¾àÀëpid
-Èë¿Ú²ÎÊı: µ±Ç°¾àÀëºÍÄ¿±ê¾àÀë
-·µ»Ø  Öµ£ºµç»úÄ¿±êËÙ¶È
+Ü£×´pid
+Ú²: Ç°Ä¿
+  ÖµÄ¿Ù¶
 **************************************************************************/	 	
-//À×´ï¾àÀëµ÷Õûpid
-float Distance_Adjust_PID(float Current_Distance,float Target_Distance)//¾àÀëµ÷ÕûPID
+//×´pid
+float Distance_Adjust_PID(float Current_Distance,float Target_Distance)//PID
 {
 	static float Bias,OutPut,Last_Bias;
-	Bias=Target_Distance-Current_Distance;                          	//¼ÆËãÆ«²î
-	OutPut=-2.5*Bias-100*(Bias-Last_Bias);//Î»ÖÃÊ½PID¿ØÖÆÆ÷  //
-	Last_Bias=Bias;                                       		 			//±£´æÉÏÒ»´ÎÆ«²î
+	Bias=Target_Distance-Current_Distance;                          	//Æ«
+	OutPut=-2.5*Bias-100*(Bias-Last_Bias);//Î»Ê½PID  //
+	Last_Bias=Bias;                                       		 			//Ò»Æ«
 	return OutPut;                                          	
 }
 
@@ -128,17 +110,17 @@ float Distance_Adjust_PID(float Current_Distance,float Target_Distance)//¾àÀëµ÷Õ
 Function: Distance_Adjust_PID
 Input   : Current_Distance;Target_Distance
 Output  : OutPut
-º¯Êı¹¦ÄÜ£ºÀ×´ï¸úËæ¾àÀëpid
-Èë¿Ú²ÎÊı: µ±Ç°¾àÀëºÍÄ¿±ê¾àÀë
-·µ»Ø  Öµ£ºµç»úÄ¿±êËÙ¶È
+Ü£×´pid
+Ú²: Ç°Ä¿
+  ÖµÄ¿Ù¶
 **************************************************************************/	 	
 
-float Lidar_follow_PID(float Current_Distance,float Target_Distance)//¾àÀëµ÷ÕûPID
+float Lidar_follow_PID(float Current_Distance,float Target_Distance)//PID
 {
 	static float Bias,OutPut,Last_Bias;
-	Bias=Target_Distance-Current_Distance;                          	//¼ÆËãÆ«²î
-	OutPut=-0.15*Bias-0.1*(Bias-Last_Bias);//Î»ÖÃÊ½PID¿ØÖÆÆ÷  //
-	Last_Bias=Bias;                                       		 			//±£´æÉÏÒ»´ÎÆ«²î
+	Bias=Target_Distance-Current_Distance;                          	//Æ«
+	OutPut=-0.15*Bias-0.1*(Bias-Last_Bias);//Î»Ê½PID  //
+	Last_Bias=Bias;                                       		 			//Ò»Æ«
 	return OutPut;                                          	
 }
 
@@ -146,22 +128,22 @@ float Lidar_follow_PID(float Current_Distance,float Target_Distance)//¾àÀëµ÷ÕûPI
 Function: Follow_Turn_PID
 Input   : Current_Angle;Target_Angle
 Output  : OutPut
-º¯Êı¹¦ÄÜ£ºÀ×´ï×ªÏòpid
-Èë¿Ú²ÎÊı: µ±Ç°½Ç¶ÈºÍÄ¿±ê½Ç¶È
-·µ»Ø  Öµ£ºµç»ú×ªÏòËÙ¶È
+Ü£×´×ªpid
+Ú²: Ç°Ç¶ÈºÄ¿Ç¶
+  Öµ×ªÙ¶
 **************************************************************************/	 	
-//À×´ï×ªÏòpid
-float Follow_Turn_PID(float Current_Angle,float Target_Angle)		                                 				 //Çó³öÆ«²îµÄ»ı·Ö
+//×´×ªpid
+float Follow_Turn_PID(float Current_Angle,float Target_Angle)		                                 				 //Æ«Ä»
 {
 	static float Bias,OutPut,Integral_bias,Last_Bias;
-	Bias=Target_Angle-Current_Angle;                         				 //¼ÆËãÆ«²î
+	Bias=Target_Angle-Current_Angle;                         				 //Æ«
 	if(Integral_bias>1000) Integral_bias=1000;
 	else if(Integral_bias<-1000) Integral_bias=-1000;
-	OutPut=-Follow_KP*Bias-Follow_KI*Integral_bias-Follow_KD*(Bias-Last_Bias);	//Î»ÖÃÊ½PID¿ØÖÆÆ÷
-	Last_Bias=Bias;                                       					 		//±£´æÉÏÒ»´ÎÆ«²î
-	if(Turn_Off(Angle_Balance,Voltage)== 1)								//µç»ú¹Ø±Õ£¬´ËÊ±»ı·ÖÇåÁã
+	OutPut=-Follow_KP*Bias-Follow_KI*Integral_bias-Follow_KD*(Bias-Last_Bias);	//Î»Ê½PID
+	Last_Bias=Bias;                                       					 		//Ò»Æ«
+	if(Turn_Off(Angle_Balance,Voltage)== 1)								//Ø±Õ£Ê±
 		Integral_bias = 0;
-	return OutPut;                                           					 	//Êä³ö
+	return OutPut;                                           					 	//
 	
 }
 

@@ -1,45 +1,27 @@
-/***********************************************
-公司：轮趣科技（东莞）有限公司
-品牌：WHEELTEC
-官网：wheeltec.net
-淘宝店铺：shop114407458.taobao.com 
-速卖通: https://minibalance.aliexpress.com/store/4455017
-版本：5.7
-修改时间：2021-04-29
-
-Brand: WHEELTEC
-Website: wheeltec.net
-Taobao shop: shop114407458.taobao.com 
-Aliexpress: https://minibalance.aliexpress.com/store/4455017
-Version:5.7
-Update：2021-04-29
-
-All rights reserved
-***********************************************/
 
 #ifndef __IOI2C_H
 #define __IOI2C_H
 
 #include "sys.h"
 
-//IO方向设置
+//IO
 #define SDA_IN()  {GPIOB->CRH&=0XFFFFFF0F;GPIOB->CRH|=8<<4;}
 #define SDA_OUT() {GPIOB->CRH&=0XFFFFFF0F;GPIOB->CRH|=3<<4;}
 
-//IO操作函数	 
+//IO	 
 #define IIC_SCL    PBout(8) //SCL
 #define IIC_SDA    PBout(9) //SDA	 
-#define READ_SDA   PBin(9)  //输入SDA 
+#define READ_SDA   PBin(9)  //SDA 
 
-//IIC所有操作函数
-void IIC_Init(void);           //初始化IIC的IO口				 
-int IIC_Start(void);					 //发送IIC开始信号
-void IIC_Stop(void);	  			 //发送IIC停止信号
-void IIC_Send_Byte(u8 txd);		 //IIC发送一个字节
-u8 IIC_Read_Byte(unsigned char ack);//IIC读取一个字节
-int IIC_Wait_Ack(void); 			 //IIC等待ACK信号
-void IIC_Ack(void);						 //IIC发送ACK信号
-void IIC_NAck(void);					 //IIC不发送ACK信号
+//IIC胁
+void IIC_Init(void);           //始IICIO				 
+int IIC_Start(void);					 //IIC始藕
+void IIC_Stop(void);	  			 //IIC停止藕
+void IIC_Send_Byte(u8 txd);		 //IIC一纸
+u8 IIC_Read_Byte(unsigned char ack);//IIC取一纸
+int IIC_Wait_Ack(void); 			 //IIC却ACK藕
+void IIC_Ack(void);						 //IICACK藕
+void IIC_NAck(void);					 //IICACK藕
 
 void IIC_Write_One_Byte(u8 daddr,u8 addr,u8 data);
 u8 IIC_Read_One_Byte(u8 daddr,u8 addr);	 

@@ -1,29 +1,11 @@
 #include "ele_ccd.h"
 #define TSL_SI    PBout(1)   //SI  
 #define TSL_CLK   PAout(1)   //CLK 
-/***********************************************
-公司：轮趣科技（东莞）有限公司
-品牌：WHEELTEC
-官网：wheeltec.net
-淘宝店铺：shop114407458.taobao.com 
-速卖通: https://minibalance.aliexpress.com/store/4455017
-版本：V1.0
-修改时间：2023-01-04
-
-Brand: WHEELTEC
-Website: wheeltec.net
-Taobao shop: shop114407458.taobao.com 
-Aliexpress: https://minibalance.aliexpress.com/store/4455017
-Version: V1.0
-Update：2023-01-04
-
-All rights reserved
-***********************************************/
 /**************************************************************************
-函数功能：延时
-入口参数：无
-返回  值：无
-作    者：平衡小车之家
+埽时
+诓
+  值
+    撸平小之
 **************************************************************************/
 void Dly_us(void)
 {
@@ -31,10 +13,10 @@ void Dly_us(void)
    for(ii=0;ii<10;ii++);      
 }
 /**************************************************************************
-函数功能：CCD数据采集
-入口参数：无
-返回  值：无
-作    者：平衡小车之家
+埽CCD莶杉
+诓
+  值
+    撸平小之
 **************************************************************************/
 void RD_TSL(void) 
 {
@@ -57,7 +39,7 @@ void RD_TSL(void)
   for(i=0;i<128;i++)
   { 
     TSL_CLK=0; 
-    Dly_us();  //调节曝光时间
+    Dly_us();  //毓时
     ADV[tslp]=(Get_Adc(2))>>4;
     ++tslp;
     TSL_CLK=1;
@@ -69,34 +51,34 @@ void RD_TSL(void)
 Function: Get_Voltage
 Input   : none
 Output  : none
-函数功能：获取ADC的值
-入口参数: 无 
-返回  值：无
+埽取ADC值
+诓:  
+  值
 **************************************************************************/	 
-//获取ADC的值，主要用于车型的选择
+//取ADC值要诔偷选
 u16 Get_Adc(u8 ch)   
 {
 	u16 result;
-	ADC_ChannelConfTypeDef sConfig;//通道初始化
+	ADC_ChannelConfTypeDef sConfig;//通始
 	sConfig.Channel=ch;
-    sConfig.SamplingTime = ADC_SAMPLETIME_239CYCLES_5;		//采用周期239.5周期
+    sConfig.SamplingTime = ADC_SAMPLETIME_239CYCLES_5;		//239.5
 	sConfig.Rank = 1;
 	HAL_ADC_ConfigChannel(&hadc1,&sConfig);		
 	
-	HAL_ADC_Start(&hadc1);								//启动转换
-	HAL_ADC_PollForConversion(&hadc1,30);				//等待转化结束
+	HAL_ADC_Start(&hadc1);								//转
+	HAL_ADC_PollForConversion(&hadc1,30);				//却转
 	if(HAL_IS_BIT_SET(HAL_ADC_GetState(&hadc1), HAL_ADC_STATE_REG_EOC))
 	{
-		result=HAL_ADC_GetValue(&hadc1);	//返回最近一次ADC1规则组的转换结果
+		result=HAL_ADC_GetValue(&hadc1);	//一ADC1转
 	}
 	return result;
 }
 
 ///**************************************************************************
-//函数功能：CCD数据采集
-//入口参数：无
-//返回  值：无
-//作    者：平衡小车之家
+//埽CCD莶杉
+//诓
+//  值
+//    撸平小之
 //**************************************************************************/
 //void CCD(void)   
 //{  
@@ -117,9 +99,9 @@ u16 Get_Adc(u8 ch)
 Function: CCD_ADC_Mode_Config
 Input   : none
 Output  : none
-函数功能：初始化CCD巡线ADC
-入口参数: 无
-返回  值：无
+埽始CCD巡ADC
+诓: 
+  值
 **************************************************************************/	 	
 void CCD_ADC_Mode_Config(void)
 {
@@ -151,7 +133,7 @@ void CCD_ADC_Mode_Config(void)
     Error_Handler();
   }
   /* USER CODE BEGIN ADC1_Init 2 */
-  HAL_ADCEx_Calibration_Start(&hadc1); //开启adc校准
+  HAL_ADCEx_Calibration_Start(&hadc1); //adc校准
 
 }
 
@@ -159,22 +141,22 @@ void CCD_ADC_Mode_Config(void)
 Function: CCD_GPIO_Config
 Input   : none
 Output  : none
-函数功能：初始化CCD巡线GPIO
-入口参数: 无
-返回  值：无
+埽始CCD巡GPIO
+诓: 
+  值
 **************************************************************************/	 	
 void CCD_GPIO_Config(void)
 {
 	GPIO_InitTypeDef GPIO_InitStruct;
 	
-	// 打开CCD端口时钟
+	// CCD丝时
 	__HAL_RCC_GPIOB_CLK_ENABLE();
 	__HAL_RCC_GPIOA_CLK_ENABLE();
 	__HAL_RCC_AFIO_CLK_ENABLE();
-//	__HAL_AFIO_REMAP_SWJ_NOJTAG();      //关闭jtag
-//	DBGMCU->CR  &= ~((uint32_t)1<<5);  	//关闭异步跟踪，否则PB3将一直读出0 
+//	__HAL_AFIO_REMAP_SWJ_NOJTAG();      //乇jtag
+//	DBGMCU->CR  &= ~((uint32_t)1<<5);  	//乇觳劫B3一直0 
 	
-	// CLK,SI配置为输出	
+	// CLK,SI为	
 	GPIO_InitStruct.Pin = GPIO_PIN_1;				//PA1
 	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -193,9 +175,9 @@ void CCD_GPIO_Config(void)
 Function: CCD_Init
 Input   : none
 Output  : none
-函数功能：初始化CCD巡线
-入口参数: 无
-返回  值：无
+埽始CCD巡
+诓: 
+  值
 **************************************************************************/	 	
 void CCD_Init(void)
 {
@@ -205,10 +187,10 @@ void CCD_Init(void)
 }
 
 /**************************************************************************
-函数功能：电磁传感器采样初始化
-入口参数：无
-返回  值：无
-作    者：平衡小车之家
+埽糯始
+诓
+  值
+    撸平小之
 **************************************************************************/
 void  ELE_Init(void)
 {    
@@ -248,7 +230,7 @@ void  ELE_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN ADC1_Init 2 */
-  HAL_ADCEx_Calibration_Start(&hadc1); //开启adc校准
+  HAL_ADCEx_Calibration_Start(&hadc1); //adc校准
 }		
 
 

@@ -1,27 +1,9 @@
 #include "encoder.h"
-/***********************************************
-公司：轮趣科技（东莞）有限公司
-品牌：WHEELTEC
-官网：wheeltec.net
-淘宝店铺：shop114407458.taobao.com 
-速卖通: https://minibalance.aliexpress.com/store/4455017
-版本：V1.0
-修改时间：2023-01-04
-
-Brand: WHEELTEC
-Website: wheeltec.net
-Taobao shop: shop114407458.taobao.com 
-Aliexpress: https://minibalance.aliexpress.com/store/4455017
-Version: V1.0
-Update：2023-01-04
-
-All rights reserved
-***********************************************/
 
 /**************************************************************************
-函数功能：单位时间读取编码器计数
-入口参数：定时器
-返回  值：速度值
+埽位时取
+诓时
+  值俣值
 **************************************************************************/
 int Read_Encoder(u8 TIMX)
 {
@@ -35,28 +17,28 @@ int Read_Encoder(u8 TIMX)
 		return Encoder_TIM;
 }
 ///**************************************************************************
-//函数功能：TIM3中断服务函数
-//入口参数：无
-//返回  值：无
+//埽TIM3卸戏
+//诓
+//  值
 //**************************************************************************/
-//void TIM4_IRQHandler(void)//中断处理函数为空，清除中断标志位后结束中断
+//void TIM4_IRQHandler(void)//卸洗为眨卸媳志位卸
 //{ 		    		  			    
-// if(TIM_GetFlagStatus(TIM4,TIM_FLAG_Update)==SET)//溢出中断
+// if(TIM_GetFlagStatus(TIM4,TIM_FLAG_Update)==SET)//卸
 // {
 //	 
 // } 
-// TIM_ClearITPendingBit(TIM4,TIM_IT_Update); //清除中断标志位 	
+// TIM_ClearITPendingBit(TIM4,TIM_IT_Update); //卸媳志位 	
 //}
 ///**************************************************************************
-//函数功能：TIM2中断服务函数
-//入口参数：无
-//返回  值：无
+//埽TIM2卸戏
+//诓
+//  值
 //**************************************************************************/
-//void TIM2_IRQHandler(void)//中断处理函数为空，清除中断标志位后结束中断
+//void TIM2_IRQHandler(void)//卸洗为眨卸媳志位卸
 //{ 		    		  			    
-// if(TIM_GetFlagStatus(TIM2,TIM_FLAG_Update)==SET)//溢出中断
+// if(TIM_GetFlagStatus(TIM2,TIM_FLAG_Update)==SET)//卸
 // {
 //	 
 // } 
-// TIM_ClearITPendingBit(TIM2,TIM_IT_Update); //清除中断标志位 	  
+// TIM_ClearITPendingBit(TIM2,TIM_IT_Update); //卸媳志位 	  
 //}
