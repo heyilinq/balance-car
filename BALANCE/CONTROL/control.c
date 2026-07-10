@@ -68,21 +68,11 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 			   Read_Distane();                           					//获取超声波测量距离值
 //			if(Flag_follow==0&&Flag_avoid==0)	Led_Flash(100);   //LED闪烁;常规模式 1s改变一次指示灯的状态	
 //			if(Flag_follow==1||Flag_avoid==1)	Led_Flash(0);     //LED常亮;超声波跟随/避障模式	
-			Key();                                    		    //扫描按键状态 单击双击可以改变小车运行状态
+			Key();                                    		    //扫描按键状态
 			Select_Zhongzhi();
-			Lidar_Avoid();                                      //雷达避障模式
-		    Lidar_Follow();                                         //雷达跟随模式
-		    Lidar_Straight();                                       //雷达走直线模式
-			CCD_Mode();                                          //CCD巡线
-		    ELE_Mode();                                          //电磁巡线
-			Balance_Pwm=Balance(Angle_Balance,Gyro_Balance);    //平衡PID控制 Gyro_Balance平衡角速度极性：前倾为正，后倾为负
-			Velocity_Pwm=Velocity(Encoder_Left,Encoder_Right);  //速度环PID控制	记住，速度反馈是正反馈，就是小车快的时候要慢下来就需要再跑快一点
-			if(Mode ==CCD_Line_Patrol_Mode)                     //CCD循迹下的转向环控制 
-			   Turn_Pwm=CCD_turn(CCD_Zhongzhi,Gyro_Turn);
-		    else if(Mode==ELE_Line_Patrol_Mode)                 //ELE循迹下的转向环控制
-			   Turn_Pwm=ELE_turn(Gyro_Turn);
-		    else
-			   Turn_Pwm=Turn(Gyro_Turn);							//转向环PID控制     
+			Balance_Pwm=Balance(Angle_Balance,Gyro_Balance);    //平衡环PD
+			Velocity_Pwm=Velocity(Encoder_Left,Encoder_Right);  //速度环PI
+			Turn_Pwm=Turn(Gyro_Turn);                           //转向环PD     
 			
 			//====== 三环串级PID：三个控制环的PWM直接叠加 ======//
 			// 左电机 = 平衡 + 速度 + 转向（转向右为正，左轮需要加）
@@ -451,40 +441,19 @@ u8 Choose(void)
 	u8 tmp;
     oled_show_once();
 	count += myabs(Read_Encoder(4));
-	if(count>6&&count<180)	//普通模式
+	if(count>6&&count<150)	//普通模式
 	{
 		Mode = 0;
 	}
-	if(count>180&&count<360)	//超声波避障模式 
+	if(count>150&&count<300)	//超声波避障模式 
 	{	
 		Mode = 1;
 	}
-	if(count>360&&count<540)	//超声波跟随模式
+	if(count>300)	//超声波跟随模式
 	{		
 		Mode = 2;
+		count = 0;
 	}
-	if(count>540&&count<720)   //雷达避障
-	{
-		Mode = 3;
-	}
-	if(count>720&&count<900)   //雷达跟随
-	{
-		Mode = 4;
-	}
-	if(count>900&&count<1080)   //雷达走直线
-	{
-		Mode = 5;
-	}
-	if(count>1080&&count<1260)   //CCD巡线
-	{
-		Mode = 6;
-	}
-	if(count>1260&&count<1440)   //电磁巡线
-	{
-		Mode = 7;
-	}
-	if(count>1440)
-		Mode=0,count=0;
 	tmp=click_N_Double(50);
 	if(tmp==1) 
 	{
@@ -494,287 +463,8 @@ u8 Choose(void)
 	else return 1;
 }
 
-/**************************************************************************
-Function: Lidar_Avoid
-Input   : none
-Output  : none
-函数功能：雷达前进避障模式
-入口参数：无
-返回  值：无
-**************************************************************************/
-void Lidar_Avoid(void)
+
+void Select_Zhongzhi(void)
 {
-	u8 i;
-	u8 avoid_Num=0;//需要避障的点
-	float Angle_Sum=0;//确认障碍物在哪一方向的变量
-	u8 too_close = 0;//判断障碍物是否太近的变量
-	if(Mode==Lidar_Avoid_Mode&&Flag_Left!=1&&Flag_Right!=1)
-	{
-		for(i=0;i<225;i++)
-		{
-			if((Dataprocess[i].angle<avoid_Angle1)||(Dataprocess[i].angle>avoid_Angle2))//小车前进方向100度范围
-			{		
-				if((Dataprocess[i].distance>0)&&(Dataprocess[i].distance<avoid_Distance))//距离小于300mm需要避障
-				{
-					Distance=Dataprocess[i].distance;
-					avoid_Num++;
-					if(Dataprocess[i].angle>310) Angle_Sum += (Dataprocess[i].angle-360);//将310~360转化为-50到0
-					else if(Dataprocess[i].angle<50) Angle_Sum+= Dataprocess[i].angle;
-					if(Dataprocess[i].distance<150)			too_close++;//靠得太近，需要后退
-				}
-			}
-		}
-		if(avoid_Num<8)
-		{
-		  Move_X=avoid_speed;                                           //给小车一个200mm/s的速度，不要大于800
-			Move_Z=0;
-		}
-		else if(avoid_Num>8)
-		{
-			 Move_X=0;
-	    	if(too_close>10) Move_X=-avoid_speed,Move_Z=0;              //靠的太近，后退一点
-				else
-				{
-					if(Angle_Sum>0)      
-					{
-						Move_Z=-turn_speed;//障碍物靠右，左转
-					}
-					else   Move_Z=turn_speed; //障碍物靠左，右转
-				}					
-		}
- }
+	Middle_angle = 0;
 }
-
-/**************************************************************************
-Function: Lidar_Avoid
-Input   : none
-Output  : none
-函数功能：雷达跟随模式
-入口参数：无
-返回  值：无
-**************************************************************************/
-void Lidar_Follow(void)
-{
-	u8 i;
-	u8 follow_num=0;                //判断跟随的点
-	u16 mini_distance = 65535;      //要跟随的距离，就是最小距离点的距离
-	static float angle =0;                 //跟随点的角度
-	static float last_angle = 0;           //跟随点的上一个角度
-	u8 data_count = 0;
-	if(Mode==Lidar_Follow_Mode&&Flag_Left!=1&&Flag_Right!=1)
-	{
-		for(i=0;i<225;i++)
-		{
-			 if((0<Dataprocess[i].distance) && (Dataprocess[i].distance<Follow_distance))//在0~1500mm中选择最近的点来跟随
-			 {
-				 follow_num++;
-				 if(Dataprocess[i].distance<mini_distance)                  //判断出最小距离的点
-				 {
-					 mini_distance = Dataprocess[i].distance;
-					 angle = Dataprocess[i].angle;
-					 Distance = mini_distance;                                     //在oled上显示要跟随点的距离
-				 }
-			 }
-	  }
-	if(angle>180)
-		  angle -= 360;				//0--360度转换成0--180；-180--0（顺时针）
-	if(angle-last_angle>10 ||angle-last_angle<-10)	//做一定消抖，波动大于10度的需要做判断
-	{
-		if(++data_count == 60)		//连续60次采集到的值(300ms后)和上次的比大于10度，此时才是认为是有效值
-		{
-			data_count = 0;
-			last_angle = angle;
-		}
-	}
-	else							//波动小于10度的可以直接认为是有效值
-	{
-			data_count = 0;	
-			last_angle = angle;
-	}
-	if(follow_num>5) 	
-	{
-		Move_X=Lidar_follow_PID(mini_distance,300);//这个的距离pid时直接作用在速度环，所以要变小一点(Move的范围在0~800)
-		Move_Z=Follow_Turn_PID(angle,0);//转向PID直接作用在转向环
-	}
-	else
-	{
-		Move_X = 0;
-		Move_Z = 0;
-	}
-	if(Move_X>60)    Move_X=60;
- }
-}
-/**************************************************************************
-Function: Lidar_Straight
-Input   : none
-Output  : none
-函数功能：雷达走直线模式
-入口参数：无
-返回  值：无
-**************************************************************************/
-void Lidar_Straight(void) 
-{
-	static u16 target_distance=0;
-	u8 i;
-	u16 current_distance=target_distance;
-	static u16 Limit_distance=0;   //雷达最大的探测距离
-	if(Mode==Lidar_Straight_Mode&&Flag_Left!=1&&Flag_Right!=1)
-	{
-		 Move_X=Initial_speed;//给小车一个初始速度
-		 for(i=0;i<225;i++)
-	  {
-		  if((Dataprocess[i].angle>71)&&(Dataprocess[i].angle<74))//取雷达的70到75度范围的点做比较点
-		 {
-			 if(determine<Limit_time) //在模式转换到Straight模式3秒后确定我们想要的距离
-			 {
-				 target_distance=Dataprocess[i].distance;
-				 Limit_distance=target_distance+200;//比目标距离大200mm,主要避免参照物的消失导致小车快速转向
-				 determine++;
-				 if(determine==(Limit_time-1)) determine=Limit_time;
-			 }
-			 if(Dataprocess[i].distance<(Limit_distance))//限制一下雷达的探测距离
-			 {
-				 current_distance=Dataprocess[i].distance;//确定距离
-			   Distance=Dataprocess[i].distance;
-			 }
-		 }
-	 }
-	 Move_Z=Distance_Adjust_PID(current_distance,target_distance);//雷达距离pid
-	}
-}
-
-/**************************************************************************
-函数功能：线性CCD取中值
-入口参数：无
-返回  值：无
-**************************************************************************/
-void  Find_CCD_Zhongzhi(void)
-{ 
-	 static u16 i,j,Left,Right;
-	 static u16 value1_max,value1_min;
-	
-	   value1_max=ADV[0];  //动态阈值算法，读取最大和最小值
-     for(i=5;i<123;i++)   //两边各去掉5个点
-     {
-        if(value1_max<=ADV[i])
-        value1_max=ADV[i];
-     }
-	   value1_min=ADV[0];  //最小值
-     for(i=5;i<123;i++) 
-     {
-        if(value1_min>=ADV[i])
-        value1_min=ADV[i];
-     }
-   CCD_Yuzhi=(value1_max+value1_min)/2;	  //计算出本次中线提取的阈值
-	 for(i = 5;i<118; i++)   //寻找左边跳变沿
-	{
-		if(ADV[i]>CCD_Yuzhi&&ADV[i+1]>CCD_Yuzhi&&ADV[i+2]>CCD_Yuzhi&&ADV[i+3]<CCD_Yuzhi&&ADV[i+4]<CCD_Yuzhi&&ADV[i+5]<CCD_Yuzhi)
-		{	
-			Left=i;
-			break;	
-		}
-	}
-	 for(j = 118;j>5; j--)//寻找右边跳变沿
-  {
-		if(ADV[j]<CCD_Yuzhi&&ADV[j+1]<CCD_Yuzhi&&ADV[j+2]<CCD_Yuzhi&&ADV[j+3]>CCD_Yuzhi&&ADV[j+4]>CCD_Yuzhi&&ADV[j+5]>CCD_Yuzhi)
-		{	
-		  Right=j;
-		  break;	
-		}
-  }
-	CCD_Zhongzhi=(Right+Left)/2;//计算中线位置
-//	if(myabs(CCD_Zhongzhi-Last_CCD_Zhongzhi)>90)   //计算中线的偏差，如果太大
-//	CCD_Zhongzhi=Last_CCD_Zhongzhi;    //则取上一次的值
-//	Last_CCD_Zhongzhi=CCD_Zhongzhi;  //保存上一次的偏差
-}
-
-/**************************************************************************
-Function: CCD_Mode
-Input   : none
-Output  : none
-函数功能：CCD巡线模式运行
-入口参数: 无
-返回  值：无
-**************************************************************************/	 	
-void CCD_Mode(void)
-{
-	static u8 Count_CCD = 0;								//调节CCD控制频率
-	if(Mode == CCD_Line_Patrol_Mode && Flag_Left !=1 &&Flag_Right !=1)
-	{
-		Move_X = tracking_speed;			//CCD巡线速度
-		if(++Count_CCD == 4)								//调节控制频率，4*5 = 20ms控制一次
-		{
-			RD_TSL(); 
-            Find_CCD_Zhongzhi();			
-            Count_CCD = 0;			
-		}
-//		else if(Count_CCD>4)  Count_CCD = 0;
-	    
-		
-	}
-}
-
-int CCD_turn(u8 CCD,float gyro)//转向控制
-{
-	  float Turn;     
-      float Bias,kp=30,Kd=0.12;	  
-	  Bias=CCD-64;
-	  Turn=Bias*kp+gyro*Kd;
-	  return Turn;
-}
-
-/**************************************************************************
-Function: ELE_Mode
-Input   : none
-Output  : none
-函数功能：电磁巡线模式运行
-入口参数: 无
-返回  值：无
-**************************************************************************/	 	
-void ELE_Mode(void)
-{
-	if(Mode == ELE_Line_Patrol_Mode && Flag_Left!=1 &&Flag_Right!=1)
-	{
-		int Sum = 0;
-		Sensor_Left = Get_Adc(2);
-		Sensor_Middle = Get_Adc(1);
-		Sensor_Right = Get_Adc(9);
-		Sum = Sensor_Left*1+Sensor_Middle*100+Sensor_Right*199;			
-		Sensor = Sum/(Sensor_Left+Sensor_Middle+Sensor_Right);
-//		if(Detect_Barrier() == No_Barrier)		//检测到无障碍物
-				Move_X=tracking_speed;       //给小车一个大概300mm/s的速度
-//		else									//有障碍物
-//		{
-//			Move_X = 0;
-//		}	
-	}
-	
-}
-
-int ELE_turn(float gyro)//转向控制
-{
-	float Turn;     
-	float Bias,kp=60,Kd=0.2;	  
-	Bias=Sensor-100;
-	Turn=Bias*kp+gyro*Kd;
-	  return Turn;
-}
-
-
-/**************************************************************************
-Function: Select_Zhongzhi
-Input   : none
-Output  : none
-函数功能：小车机械中值的选择
-入口参数：无
-返回  值：无
-**************************************************************************/
-void Select_Zhongzhi(void)                   //机械中值选择，避免安装上电磁巡线、CCD巡线装备时小车往前冲的现象
-{
-	if(Mode == ELE_Line_Patrol_Mode)
-		Middle_angle = -9;
-	else if(Mode == CCD_Line_Patrol_Mode)
-		Middle_angle = -4;
-	else   Middle_angle = 0;
-}
-

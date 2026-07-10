@@ -23,34 +23,14 @@ Output  : none
 void oled_show(void)
 {
 		//=============第一行显示小车模式=======================//	
-		    if(Mode==0||Mode==1||Mode==2)
-	  {
 		     if(Way_Angle==1)	OLED_ShowString(0,0,"DMP");
 		else if(Way_Angle==2)	OLED_ShowString(0,0,"Kalman");
 		else if(Way_Angle==3)	OLED_ShowString(0,0,"C F");
-	  }
-	  if(Mode==3||Mode==4||Mode==5)
-	  {
-		  if(LD_Successful_Receive_flag==1)
-		       OLED_ShowString(0,0,"SUCCES");
-		  else
-			  OLED_ShowString(0,0,"DEFEAT");
-	  }
+
                    
 	      if(Mode==2) OLED_ShowString(60,0,"U_Follow");
-				 else if (Mode == 1)   OLED_ShowString(60,0,"U_Avoid ");
- 		     else if(Mode==0)            OLED_ShowString(60,0,"Normal  ");
-	       else if(Mode==3)            OLED_ShowString(60,0,"LD_Avoid");
-	       else if(Mode==4)            OLED_ShowString(60,0,"LD_Follow");
-	       else  if(Mode==5)           OLED_ShowString(60,0,"LD_Straight");
-	       else if(Mode==6)            OLED_Show_CCD();
-	       else if(Mode==7)
-			   {
-					  OLED_ShowNumber(0,0,Sensor_Left,5,12);	
-						OLED_ShowNumber(30,0,Sensor_Middle,4,12);
-						OLED_ShowNumber(60,0,Sensor_Right,4,12);
-						OLED_ShowNumber(90,0,Sensor,4,12);		
-				 }
+				 else if (Mode == 1) OLED_ShowString(60,0,"U_Avoid ");
+ 		     else               OLED_ShowString(60,0,"Normal  ");
 		//=============第二行显示角度=======================//	
 		                      OLED_ShowString(00,10,"Angle");
 		if( Angle_Balance<0)	OLED_ShowString(48,10,"-");
@@ -168,13 +148,8 @@ void oled_show_once(void)
    OLED_ShowString(0,10,"TO Select Mode");
 	 OLED_ShowString(0,20,"Current Mode Is");
 	if(Mode==0)          OLED_ShowString(20,30,"   Normal  ");
-	if(Mode==1)			 OLED_ShowString(20,30,"  U_Avoid  ");
+	if(Mode==1)		 OLED_ShowString(20,30,"  U_Avoid  ");
 	if(Mode==2)		     OLED_ShowString(20,30," U_Follow  ");
-	if(Mode==3)			 OLED_ShowString(20,30," LD_Avoid  ");
-	if(Mode==4)          OLED_ShowString(20,30," LD_Follow ");
-	if(Mode==5)          OLED_ShowString(20,30,"LD_Straight");
-	if(Mode==6)          OLED_ShowString(20,30,"    CCD    ");
-	if(Mode==7)          OLED_ShowString(20,30,"    ELE    ");
 	
 	OLED_ShowString(0,40,"D-Press User Key");
   OLED_ShowString(0,50,"TO End Selection");

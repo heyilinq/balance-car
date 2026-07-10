@@ -124,16 +124,10 @@ int main(void)
   OLED_Init();                    //OLED初始化
   MPU6050_initialize();           //MPU6050初始化	
 	DMP_Init();                     //初始化DMP 
-    while(Choose()) { }
+    while(Choose()) { }           //转右轮选模式（0=普通 1=超声波避障 2=超声波跟随），双击确认
 	if(Mode==Ultrasonic_Avoid_Mode||Mode==Ultrasonic_Follow_Mode)
-		  MX_TIM2_Init(); //超声波和雷达、CCD、ELE巡线不能同时使用，使用CCD、ELE功能时，需要拆下超声波模块
-	if(Mode==Lidar_Avoid_Mode||Mode==Lidar_Follow_Mode||Mode==Lidar_Straight_Mode)
-		MX_USART2_UART_Init();
-	if(Mode==CCD_Line_Patrol_Mode)
-		CCD_Init();
-	if(Mode==ELE_Line_Patrol_Mode)
-		ELE_Init();	
-	HAL_NVIC_EnableIRQ(EXTI15_10_IRQn); //开启引脚外部中断
+		  MX_TIM2_Init();          //超声波模式需要TIM2
+	HAL_NVIC_EnableIRQ(EXTI15_10_IRQn); //开启MPU6050 INT引脚外部中断
   /* USER CODE END 2 */
 
   /* Infinite loop */
