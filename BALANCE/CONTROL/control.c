@@ -1,28 +1,54 @@
+/**
+ * ============================================================
+ * B570 平衡小车 - 核心控制文件
+ * ============================================================
+ * 本文件包含：
+ * 1. 主控制中断回调 HAL_GPIO_EXTI_Callback（5ms 采样 + 10ms 控制）
+ * 2. 平衡环 PD 控制器 Balance()
+ * 3. 速度环 PI 控制器 Velocity()
+ * 4. 转向环 PD 控制器 Turn()
+ * 5. 姿态获取 Get_Angle()（DMP / 卡尔曼 / 互补滤波）
+ * 6. 安全保护 Pick_Up() / Put_Down() / Turn_Off()
+ *
+ * MCU: STM32F103C8T6  @72MHz
+ * 控制周期: 10ms  (5ms 采样，Flag_Target 分频)
+ * 传感器: MPU6050 (INT 引脚触发外部中断)
+ * 电机驱动: TB6612 (PWM + DIR)
+ * ============================================================
+ */
+
 #include "control.h"	
 int Sensor_Left,Sensor_Middle,Sensor_Right,Sensor;
 /**************************************************************************
-Function: Control function
+Function: Control function  (主控制循环)
 Input   : none
 Output  : none
 函数功能：所有的控制代码都在这里面
          5ms外部中断由MPU6050的INT引脚触发
          严格保证采样和数据处理的时间同步	
+
+【核心架构说明】
+- 5ms 采样（读 MPU6050 + 读编码器），保证滤波精度
+- 10ms 控制（PID 计算 + 电机输出），Flag_Target 翻转实现分频
+- 三环串级 PID：平衡环(PD) + 速度环(PI) + 转向环(PD)
+- 最终 PWM = Balance + Velocity ± Turn
+
 入口参数：无
 返回  值：无				 
 **************************************************************************/
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
 	static int Voltage_Temp,Voltage_Count,Voltage_All;		//电压测量相关变量
-	static u8 Flag_Target;																//控制函数相关变量，提供10ms基准
-	int Encoder_Left,Encoder_Right;             					//左右编码器的脉冲计数
-	int Balance_Pwm,Velocity_Pwm,Turn_Pwm;		  					//平衡环PWM变量，速度环PWM变量，转向环PWM变
+	static u8 Flag_Target;									//控制函数相关变量，提供10ms基准
+	int Encoder_Left,Encoder_Right;             			//左右编码器的脉冲计数
+	int Balance_Pwm,Velocity_Pwm,Turn_Pwm;		  			//平衡环PWM变量，速度环PWM变量，转向环PWM变量
 	if(GPIO_Pin==MPU6050_EXTI_Pin)
 	{  
-			Flag_Target=!Flag_Target;
-			Get_Angle(Way_Angle);                     					//更新姿态，5ms一次，更高的采样频率可以改善卡尔曼滤波和互补滤波的效果
-			Encoder_Left=-Read_Encoder(3);            					//读取左轮编码器的值，前进为正，后退为负
-			Encoder_Right=-Read_Encoder(4);           					//读取右轮编码器的值，前进为正，后退为负
-																													//左轮A相接TIM2_CH1,右轮A相接TIM4_CH2,故这里两个编码器的极性相同
+			Flag_Target=!Flag_Target;                       //5ms翻转一次，实现10ms控制周期
+			Get_Angle(Way_Angle);                            //更新姿态，5ms一次，更高的采样频率可以改善卡尔曼滤波和互补滤波的效果
+			Encoder_Left=-Read_Encoder(3);                   //读取左轮编码器的值，前进为正，后退为负
+			Encoder_Right=-Read_Encoder(4);                  //读取右轮编码器的值，前进为正，后退为负
+			                                                //左轮A相接TIM3_CH1,右轮A相接TIM4_CH2,故这里两个编码器的极性相同
 			Get_Velocity_Form_Encoder(Encoder_Left,Encoder_Right);//编码器读数转速度（mm/s）
 
 			if(Flag_Target==1)                        					//10ms控制一次
@@ -58,6 +84,9 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 		    else
 			   Turn_Pwm=Turn(Gyro_Turn);							//转向环PID控制     
 			
+			//====== 三环串级PID：三个控制环的PWM直接叠加 ======//
+			// 左电机 = 平衡 + 速度 + 转向（转向右为正，左轮需要加）
+			// 右电机 = 平衡 + 速度 - 转向（转向右为正，右轮需要减）
 			Motor_Left=Balance_Pwm+Velocity_Pwm+Turn_Pwm;       //计算左轮电机最终PWM
 			Motor_Right=Balance_Pwm+Velocity_Pwm-Turn_Pwm;      //计算右轮电机最终PWM
 																													//PWM值正数使小车前进，负数使小车后退
@@ -73,9 +102,16 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 }
 
 /**************************************************************************
-Function: Vertical PD control
-Input   : Angle:angle；Gyro：angular velocity
-Output  : balance：Vertical control PWM
+Function: Vertical PD control  (平衡环 PD 控制器)
+Input   : Angle:角度（滤波后的倾角）；Gyro：角速度（°/s）
+Output  : balance：直立控制PWM
+
+【原理】
+- P（比例）：角度偏离越大，回正力越大
+- D（微分）：角速度越大，阻尼力越大（防止震荡）
+- 公式：PWM = -Kp*(机械中值 - 角度) - Kd*(0 - 角速度)
+- 参数在 main.c 中定义，放大100倍存储，使用时除以100恢复真实值
+
 函数功能：直立PD控制		
 入口参数：Angle:角度；Gyro：角速度
 返回  值：balance：直立控制PWM
@@ -84,21 +120,27 @@ int Balance(float Angle,float Gyro)
 {  
    float Angle_bias,Gyro_bias;
 	 int balance;
-	 Angle_bias=Middle_angle-Angle;                       				//求出平衡的角度中值 和机械相关
-	 Gyro_bias=0-Gyro; 
-	 balance=-Balance_Kp/100*Angle_bias-Gyro_bias*Balance_Kd/100; //计算平衡控制的电机PWM  PD控制   kp是P系数 kd是D系数 
+	 Angle_bias=Middle_angle-Angle;                       	//求出平衡的角度中值，和机械结构相关
+	 Gyro_bias=0-Gyro;                                      //目标角速度为0（希望车不晃）
+	 balance=-Balance_Kp/100*Angle_bias-Gyro_bias*Balance_Kd/100; //PD控制公式：负反馈
 	 return balance;
 }
 
 /**************************************************************************
-Function: Speed PI control
-Input   : encoder_left：Left wheel encoder reading；encoder_right：Right wheel encoder reading
+Function: Speed PI control  (速度环 PI 控制器)
+Input   : encoder_left：左轮编码器读数；encoder_right：右轮编码器读数
 Output  : Speed control PWM
+
+【原理】
+- P（比例）：当前速度与目标速度的偏差越大，控制力越大
+- I（积分）：累积位置偏差，保证长时静止（消除稳态误差）
+- 一阶低通滤波 α=0.14：抑制编码器抖动，平滑速度信号
+- 注意：速度环是【正反馈】——车要停下来必须再加速去追
+
 函数功能：速度控制PWM		
 入口参数：encoder_left：左轮编码器读数；encoder_right：右轮编码器读数
 返回  值：速度控制PWM
 **************************************************************************/
-//修改前进后退速度，请修改Target_Velocity，比如，改成60就比较慢了
 int Velocity(int encoder_left,int encoder_right)
 {  
     static float velocity,Encoder_Least,Encoder_bias,Movement;
@@ -130,6 +172,20 @@ int Velocity(int encoder_left,int encoder_right)
 		if(Turn_Off(Angle_Balance,Voltage)==1||Flag_Stop==1) Encoder_Integral=0;//电机关闭后清除积分
 	  return velocity;
 }
+/**************************************************************************
+Function: Turn control  (转向环 PD 控制器)
+Input   : Z-axis angular velocity
+Output  : Turn control PWM
+
+【原理】
+- P（比例）：根据目标转向幅度输出 PWM
+- D（微分）：Z轴陀螺仪反馈，抑制过度转向
+- 直行时 Kd=0（仅 P 控制），转向时开启 Kd（模糊 PID 思想）
+
+函数功能：转向控制 
+入口参数：Z轴陀螺仪
+返回  值：转向控制PWM
+**************************************************************************/
 int Turn(float gyro)
 {
 	 static float Turn_Target,turn,Turn_Amplitude=54;
@@ -139,7 +195,7 @@ int Turn(float gyro)
 	 else if(1==Flag_Right)	  Turn_Target=Turn_Amplitude/Flag_velocity; 
 	 else Turn_Target=0;
 	 if(1==Flag_front||1==Flag_back)  Kd=Turn_Kd;        
-	 else Kd=0;   //转向的时候取消陀螺仪的纠正 有点模糊PID的思想
+	 else Kd=0;   //直行时不使用角速度反馈，转向时才引入D项（模糊PID）
   //===================转向PD控制器=================//
 	 turn=Turn_Target*Kp/100+gyro*Kd/100+Move_Z;//结合Z轴陀螺仪进行PD控制
 	 return turn;								 				 //转向环PWM右转为正，左转为负
