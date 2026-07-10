@@ -31,25 +31,29 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-u8 Way_Angle=2;                             //获取角度的算法，1：四元数  2：卡尔曼  3：互补滤波 
-u8 Flag_front,Flag_back,Flag_Left,Flag_Right,Flag_velocity=2; //蓝牙遥控相关的变量
-u8 Flag_Stop=1,Flag_Show=0;                 //电机停止标志位和显示标志位  默认停止 显示打开
-int Motor_Left,Motor_Right;                 //电机PWM变量 应是Motor的 向Moto致敬	
-int Temperature;                            //温度变量
-int Voltage,Middle_angle;                   //电池电压采样相关的变量
-float Angle_Balance,Gyro_Balance,Gyro_Turn; //平衡倾角 平衡陀螺仪 转向陀螺仪
-u8 LD_Successful_Receive_flag;              //雷达成功接收数据标志位
-u8 Mode = 0;								//模式选择，默认是普通的控制模式
-u8 CCD_Zhongzhi,CCD_Yuzhi;                  //CCD中值和阈值
-u16 ADV[128]={0};                           //存放CCD的数据的数组
-u16 determine;                              //雷达跟随模式的一个标志位
-float Move_X,Move_Z;			            //遥控控制的速度
-u32 Distance;                               //超声波测距
-u8 PID_Send; 					                    	//调参相关变量
-u8 Flag_follow=0,Flag_avoid=0;							//超声波跟随、超声波壁障标志位
-float Acceleration_Z;                       //Z轴加速度计  
-volatile u8 delay_flag,delay_50;            //提供延时的变量
+// ===== 全局配置 ===== //
+u8 Way_Angle=2;                  //姿态算法: 1=DMP 2=卡尔曼(默认) 3=互补滤波
+u8 Flag_Stop=1,Flag_Show=0;      //电机停止标志(1=停止) 显示标志(0=OLED模式)
+u8 Mode = 0;                     //运行模式: 0=普通 1=超声波避障 2=超声波跟随 3-5=雷达模式 6=CCD巡线 7=电磁巡线
+// ===== PID 参数配置（数值放大100倍存储） ===== //
+// 平衡环 PD:  Kp=255.0  Kd=1.35   (角度控制核心)
+// 速度环 PI:  Kp=160.0  Ki=0.80   (编码器反馈)
+// 转向环 PD:  Kp=42.0   Kd=0.60   (Z轴角速度)
 float Balance_Kp=25500,Balance_Kd=135,Velocity_Kp=16000,Velocity_Ki=80,Turn_Kp=4200,Turn_Kd=60;//PID参数（放大100倍）
+u8 Flag_front,Flag_back,Flag_Left,Flag_Right,Flag_velocity=2; //蓝牙遥控方向/速度档位
+int Motor_Left,Motor_Right;                 //左右电机PWM值（有符号，正=前进 负=后退）
+int Temperature,Voltage,Middle_angle;        //温度、电池电压、机械中值
+float Angle_Balance,Gyro_Balance,Gyro_Turn;  //平衡角、平衡角速度、转向角速度
+float Acceleration_Z;                        //Z轴加速度（用于拿起检测）
+u8 LD_Successful_Receive_flag;              //雷达接收成功标志
+u8 CCD_Zhongzhi,CCD_Yuzhi;                  //CCD巡线中线/阈值
+u16 ADV[128]={0};                           //CCD数据数组
+u16 determine;                              //雷达走直线确定标志
+float Move_X,Move_Z;                        //遥控/自动模式的速度和转向
+u32 Distance;                               //超声波测距(mm)
+u8 PID_Send;                                //APP调参发送标志
+u8 Flag_follow=0,Flag_avoid=0;             //超声波跟随/避障标志
+volatile u8 delay_flag,delay_50;            //示波器50ms精准延时
 
 /* USER CODE END PTD */
 
