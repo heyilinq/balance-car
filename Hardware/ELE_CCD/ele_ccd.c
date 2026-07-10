@@ -1,23 +1,11 @@
 #include "ele_ccd.h"
 #define TSL_SI    PBout(1)   //SI  
 #define TSL_CLK   PAout(1)   //CLK 
-/**************************************************************************
-ܣʱ
-ڲ
-  ֵ
-    ߣƽС֮
-**************************************************************************/
 void Dly_us(void)
 {
    int ii;    
    for(ii=0;ii<10;ii++);      
 }
-/**************************************************************************
-ܣCCDݲɼ
-ڲ
-  ֵ
-    ߣƽС֮
-**************************************************************************/
 void RD_TSL(void) 
 {
 	u8 i=0,tslp=0;
@@ -39,7 +27,7 @@ void RD_TSL(void)
   for(i=0;i<128;i++)
   { 
     TSL_CLK=0; 
-    Dly_us();  //عʱ
+    Dly_us();  //调节曝光时间
     ADV[tslp]=(Get_Adc(2))>>4;
     ++tslp;
     TSL_CLK=1;
@@ -51,34 +39,34 @@ void RD_TSL(void)
 Function: Get_Voltage
 Input   : none
 Output  : none
-ܣȡADCֵ
-ڲ:  
-  ֵ
+函数功能：获取ADC的值
+入口参数: 无 
+返回  值：无
 **************************************************************************/	 
-//ȡADCֵҪڳ͵ѡ
+//获取ADC的值，主要用于车型的选择
 u16 Get_Adc(u8 ch)   
 {
 	u16 result;
-	ADC_ChannelConfTypeDef sConfig;//ͨʼ
+	ADC_ChannelConfTypeDef sConfig;//通道初始化
 	sConfig.Channel=ch;
-    sConfig.SamplingTime = ADC_SAMPLETIME_239CYCLES_5;		//239.5
+    sConfig.SamplingTime = ADC_SAMPLETIME_239CYCLES_5;		//采用周期239.5周期
 	sConfig.Rank = 1;
 	HAL_ADC_ConfigChannel(&hadc1,&sConfig);		
 	
-	HAL_ADC_Start(&hadc1);								//ת
-	HAL_ADC_PollForConversion(&hadc1,30);				//ȴת
+	HAL_ADC_Start(&hadc1);								//启动转换
+	HAL_ADC_PollForConversion(&hadc1,30);				//等待转化结束
 	if(HAL_IS_BIT_SET(HAL_ADC_GetState(&hadc1), HAL_ADC_STATE_REG_EOC))
 	{
-		result=HAL_ADC_GetValue(&hadc1);	//һADC1ת
+		result=HAL_ADC_GetValue(&hadc1);	//返回最近一次ADC1规则组的转换结果
 	}
 	return result;
 }
 
 ///**************************************************************************
-//ܣCCDݲɼ
-//ڲ
-//  ֵ
-//    ߣƽС֮
+//函数功能：CCD数据采集
+//入口参数：无
+//返回  值：无
+//作    者：平衡小车之家
 //**************************************************************************/
 //void CCD(void)   
 //{  
@@ -99,9 +87,9 @@ u16 Get_Adc(u8 ch)
 Function: CCD_ADC_Mode_Config
 Input   : none
 Output  : none
-ܣʼCCDѲADC
-ڲ: 
-  ֵ
+函数功能：初始化CCD巡线ADC
+入口参数: 无
+返回  值：无
 **************************************************************************/	 	
 void CCD_ADC_Mode_Config(void)
 {
@@ -133,7 +121,7 @@ void CCD_ADC_Mode_Config(void)
     Error_Handler();
   }
   /* USER CODE BEGIN ADC1_Init 2 */
-  HAL_ADCEx_Calibration_Start(&hadc1); //adcУ׼
+  HAL_ADCEx_Calibration_Start(&hadc1); //开启adc校准
 
 }
 
@@ -141,22 +129,22 @@ void CCD_ADC_Mode_Config(void)
 Function: CCD_GPIO_Config
 Input   : none
 Output  : none
-ܣʼCCDѲGPIO
-ڲ: 
-  ֵ
+函数功能：初始化CCD巡线GPIO
+入口参数: 无
+返回  值：无
 **************************************************************************/	 	
 void CCD_GPIO_Config(void)
 {
 	GPIO_InitTypeDef GPIO_InitStruct;
 	
-	// CCD˿ʱ
+	// 打开CCD端口时钟
 	__HAL_RCC_GPIOB_CLK_ENABLE();
 	__HAL_RCC_GPIOA_CLK_ENABLE();
 	__HAL_RCC_AFIO_CLK_ENABLE();
-//	__HAL_AFIO_REMAP_SWJ_NOJTAG();      //رjtag
-//	DBGMCU->CR  &= ~((uint32_t)1<<5);  	//ر첽٣PB3һֱ0 
+//	__HAL_AFIO_REMAP_SWJ_NOJTAG();      //关闭jtag
+//	DBGMCU->CR  &= ~((uint32_t)1<<5);  	//关闭异步跟踪，否则PB3将一直读出0 
 	
-	// CLK,SIΪ	
+	// CLK,SI配置为输出	
 	GPIO_InitStruct.Pin = GPIO_PIN_1;				//PA1
 	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -171,14 +159,6 @@ void CCD_GPIO_Config(void)
 }
 
 
-/**************************************************************************
-Function: CCD_Init
-Input   : none
-Output  : none
-ܣʼCCDѲ
-ڲ: 
-  ֵ
-**************************************************************************/	 	
 void CCD_Init(void)
 {
 	CCD_GPIO_Config();
@@ -186,12 +166,6 @@ void CCD_Init(void)
 
 }
 
-/**************************************************************************
-ܣŴʼ
-ڲ
-  ֵ
-    ߣƽС֮
-**************************************************************************/
 void  ELE_Init(void)
 {    
   ADC_ChannelConfTypeDef sConfig = {0};
@@ -230,7 +204,7 @@ void  ELE_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN ADC1_Init 2 */
-  HAL_ADCEx_Calibration_Start(&hadc1); //adcУ׼
+  HAL_ADCEx_Calibration_Start(&hadc1); //开启adc校准
 }		
 
 

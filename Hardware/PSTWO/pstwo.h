@@ -5,16 +5,16 @@
 /*********************************************************
       
 **********************************************************/	 
-#define DI   PCin(13)          	//  ÊäÈë
+#define DI   PCin(13)          	//  è¾“å…¥
 
-#define DO_H PCout(14)=1        	//ÃüÁîÎ»¸ß
-#define DO_L PCout(14)=0        	//ÃüÁîÎ»µÍ
+#define DO_H PCout(14)=1        	//å‘½ä»¤ä½é«˜
+#define DO_L PCout(14)=0        	//å‘½ä»¤ä½ä½
 
-#define CS_H PCout(15)=1       	//CSÀ­¸ß
-#define CS_L PCout(15)=0       	//CSÀ­µÍ
+#define CS_H PCout(15)=1       	//CSæ‹‰é«˜
+#define CS_L PCout(15)=0       	//CSæ‹‰ä½
 
-#define CLK_H PAout(2)=1      	//Ê±ÖÓÀ­¸ß
-#define CLK_L PAout(2)=0      	//Ê±ÖÓÀ­µÍ
+#define CLK_H PAout(2)=1      	//æ—¶é’Ÿæ‹‰é«˜
+#define CLK_L PAout(2)=0      	//æ—¶é’Ÿæ‹‰ä½
 
 
 
@@ -44,7 +44,7 @@
 //#define WHAMMY_BAR		8
 
 //These are stick values
-#define PSS_RX 5                //ÓÒÒ¡¸ËXÖáÊı¾İ
+#define PSS_RX 5                //å³æ‘‡æ†Xè½´æ•°æ®
 #define PSS_RY 6
 #define PSS_LX 7
 #define PSS_LY 8
@@ -54,19 +54,19 @@ extern u16 MASK[16];
 extern u16 Handkey;
 
 void PS2_Init(void);
-u8 PS2_RedLight(void);   //ÅĞ¶ÏÊÇ·ñÎªºìµÆÄ£Ê½
-void PS2_ReadData(void); //¶ÁÊÖ±úÊı¾İ
-void PS2_Cmd(u8 CMD);		  //ÏòÊÖ±ú·¢ËÍÃüÁî
-u8 PS2_DataKey(void);		  //°´¼üÖµ¶ÁÈ¡
-u8 PS2_AnologData(u8 button); //µÃµ½Ò»¸öÒ¡¸ËµÄÄ£ÄâÁ¿
-void PS2_ClearData(void);	  //Çå³ıÊı¾İ»º³åÇø
-void PS2_Vibration(u8 motor1, u8 motor2);//Õñ¶¯ÉèÖÃmotor1  0xFF¿ª£¬ÆäËû¹Ø£¬motor2  0x40~0xFF
+u8 PS2_RedLight(void);   //åˆ¤æ–­æ˜¯å¦ä¸ºçº¢ç¯æ¨¡å¼
+void PS2_ReadData(void); //è¯»æ‰‹æŸ„æ•°æ®
+void PS2_Cmd(u8 CMD);		  //å‘æ‰‹æŸ„å‘é€å‘½ä»¤
+u8 PS2_DataKey(void);		  //æŒ‰é”®å€¼è¯»å–
+u8 PS2_AnologData(u8 button); //å¾—åˆ°ä¸€ä¸ªæ‘‡æ†çš„æ¨¡æ‹Ÿé‡
+void PS2_ClearData(void);	  //æ¸…é™¤æ•°æ®ç¼“å†²åŒº
+void PS2_Vibration(u8 motor1, u8 motor2);//æŒ¯åŠ¨è®¾ç½®motor1  0xFFå¼€ï¼Œå…¶ä»–å…³ï¼Œmotor2  0x40~0xFF
 
-void PS2_EnterConfing(void);	 //½øÈëÅäÖÃ
-void PS2_TurnOnAnalogMode(void); //·¢ËÍÄ£ÄâÁ¿
-void PS2_VibrationMode(void);    //Õñ¶¯ÉèÖÃ
-void PS2_ExitConfing(void);	     //Íê³ÉÅäÖÃ
-void PS2_SetInit(void);		     //ÅäÖÃ³õÊ¼»¯
+void PS2_EnterConfing(void);	 //è¿›å…¥é…ç½®
+void PS2_TurnOnAnalogMode(void); //å‘é€æ¨¡æ‹Ÿé‡
+void PS2_VibrationMode(void);    //æŒ¯åŠ¨è®¾ç½®
+void PS2_ExitConfing(void);	     //å®Œæˆé…ç½®
+void PS2_SetInit(void);		     //é…ç½®åˆå§‹åŒ–
 void PS2_Read(void);
 #endif
 

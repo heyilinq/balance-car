@@ -1,7 +1,7 @@
 #ifndef __OLED_H
 #define __OLED_H			  	 
 #include "sys.h"
-//-----------------OLED˿ڶ---------------- 
+//-----------------OLED端口定义---------------- 
 #define OLED_RST_Clr() PBout(3)=0   //RST
 #define OLED_RST_Set() PBout(3)=1   //RST
 
@@ -14,9 +14,9 @@
 #define OLED_SDIN_Clr()  PBout(4)=0   //SDA
 #define OLED_SDIN_Set()  PBout(4)=1   //SDA
 
-#define OLED_CMD  0	//д
-#define OLED_DATA 1	//д
-//OLEDú
+#define OLED_CMD  0	//写命令
+#define OLED_DATA 1	//写数据
+//OLED控制用函数
 void OLED_WR_Byte(u8 dat,u8 cmd);	    
 void OLED_Display_On(void);
 void OLED_Display_Off(void);

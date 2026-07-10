@@ -49,9 +49,9 @@ typedef struct PointDataProcess_
 }PointDataProcessDef;
 
 
-extern PointDataProcessDef PointDataProcess[225];//����225������
+extern PointDataProcessDef PointDataProcess[225];//锟斤拷锟斤拷225锟斤拷锟斤拷锟斤拷
 extern LiDARFrameTypeDef Pack_Data;
-extern PointDataProcessDef Dataprocess[225];//����С�����ϡ����桢��ֱ�ߡ�ELE�״���ϵ��״�����
+extern PointDataProcessDef Dataprocess[225];//锟斤拷锟斤拷小锟斤拷锟斤拷锟较★拷锟斤拷锟芥、锟斤拷直锟竭★拷ELE锟阶达拷锟斤拷系锟斤拷状锟斤拷锟斤拷锟�
 
 void LIDAR_USART_Init(void);
 void  UART5_IRQHandler(void);
@@ -61,7 +61,7 @@ void Get_Target_Encoder(float Vx,float Vz);
 int Incremental_PI_Left (int Encoder,int Target);
 int Incremental_PI_Right (int Encoder,int Target);
 float Follow_Turn_PID(float Current_Angle,float Target_Angle);
-float Lidar_follow_PID(float Current_Distance,float Target_Distance);//�������PID
+float Lidar_follow_PID(float Current_Distance,float Target_Distance);//锟斤拷锟斤拷锟斤拷锟絇ID
 #endif
 
 

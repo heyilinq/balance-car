@@ -3,7 +3,7 @@
 #include "sys.h"	  	
 
 extern u8 Usart2_Receive;
-extern u8 Usart2_Receive_buf[1];//串口2接收中断数据存放的缓冲区
+extern u8 Usart2_Receive_buf[1];//涓插彛2鎺ユ敹涓柇鏁版嵁瀛樻斁鐨勭紦鍐插尯
 void uart2_init(u32 bound);
 
 #endif
