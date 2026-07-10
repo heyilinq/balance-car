@@ -364,7 +364,7 @@ int Pick_Up(float Acceleration,float Angle,int encoder_left,int encoder_right)
 	 if(flag==1)                                                      //进入第二步
 	 {
 			if(++count1>200)       count1=0,flag=0;                       //超时不再等待2000ms，返回第一步
-			if(Acceleration>26000&&(Angle>(-20+Middle_angle))&&(Angle<(20+Middle_angle)))   //条件2，小车是在0度附近被拿起
+			if(Acceleration>20000&&(Angle>(-30+Middle_angle))&&(Angle<(30+Middle_angle)))   //条件2：检测到向上加速度（原始值>20000≈1.22g）+ 角度在±30°内
 			flag=2; 
 	 } 
 	 if(flag==2)                                                       //第三步
