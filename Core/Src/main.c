@@ -117,6 +117,8 @@ int main(void)
   MX_TIM4_Init();
   MX_USART1_UART_Init();
   MX_USART3_UART_Init();
+  MX_USART2_UART_Init();
+  MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
 	JTAG_Set(JTAG_SWD_DISABLE);     //关闭JTAG接口
 	JTAG_Set(SWD_ENABLE);           //打开SWD接口 可以利用主板的SWD接口调试
@@ -132,8 +134,20 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+
+  // 舵机测试：PA0 = TIM2_CH1, 50Hz PWM
+  MX_TIM2_Init();                          // 初始化TIM2（含CH1 PWM + CH2超声波）
+  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1); // 启动CH1 PWM
+
   while (1)
   {
+    // 舵机测试：0°→90°→180° 循环
+    __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, 500);
+    HAL_Delay(1000);
+    __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, 1500);
+    HAL_Delay(1000);
+    __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, 2500);
+    HAL_Delay(1000);
 		
     /* USER CODE END WHILE */
 
